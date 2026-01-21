@@ -4,29 +4,32 @@
 <meta charset="UTF-8">
 <title>Vinscope Admin Panel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:#f2f2f2;
+  background:#f4f4f4;
 }
 .container{
-  max-width:500px;
-  margin:30px auto;
+  max-width:480px;
+  margin:25px auto;
   background:#fff;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.12);
 }
-h1,h2{text-align:center}
-input,button{
+h2{
+  text-align:center;
+}
+input,select,button{
   width:100%;
-  padding:14px;
+  padding:12px;
   margin-top:12px;
-  border-radius:8px;
-  font-size:15px;
+  border-radius:30px;
+  border:1.5px solid #000;
+  font-size:14px;
 }
-input{border:1px solid #ccc}
 button{
   background:#000;
   color:#fff;
@@ -34,49 +37,111 @@ button{
   cursor:pointer;
 }
 button:hover{opacity:0.9}
-.hidden{display:none}
 .order{
   border:1px solid #ddd;
   padding:12px;
-  border-radius:8px;
-  margin-top:10px;
+  border-radius:10px;
+  margin-top:12px;
   font-size:14px;
 }
+.small{
+  font-size:12px;
+  color:#555;
+}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<div class="container" id="login">
-  <h1>Vinscope Admin</h1>
-  <input id="pass" type="password" placeholder="Admin Password">
+<!-- 🔔 Bell -->
+<audio id="bell">
+  <source src="ring.mp3" type="audio/mpeg">
+</audio>
+
+<!-- LOGIN -->
+<div class="container" id="loginBox">
+  <h2>Admin Login</h2>
+  <input type="password" id="password" placeholder="Enter admin password">
   <button onclick="login()">Login</button>
 </div>
 
-<div class="container hidden" id="panel">
-  <h2>Orders Panel</h2>
+<!-- ADMIN PANEL -->
+<div class="container hidden" id="adminBox">
+  <h2>Vinscope Orders</h2>
 
-  <div class="order">
-    <b>VIN:</b> WBAVC93507K033911<br>
-    <b>Email:</b> customer@email.com<br>
-    <b>Status:</b> Processing
-  </div>
+  <input id="vin" placeholder="VIN">
+  <input id="email" placeholder="Customer Email">
+  <input id="report" placeholder="Report Link (PDF / URL)">
 
-  <div class="order">
-    <b>VIN:</b> 1HGCM82633A123456<br>
-    <b>Email:</b> buyer@email.com<br>
-    <b>Status:</b> Delivered
-  </div>
+  <select id="status">
+    <option>Processing</option>
+    <option>Delivered</option>
+  </select>
+
+  <button onclick="saveOrder()">Add / Update Order</button>
+
+  <div id="orders"></div>
 </div>
 
 <script>
+const ADMIN_PASSWORD = "admin123";
+let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
 function login(){
-  if(document.getElementById("pass").value==="admin123"){
-    document.getElementById("login").classList.add("hidden");
-    document.getElementById("panel").classList.remove("hidden");
-  }else{
+  if(document.getElementById("password").value === ADMIN_PASSWORD){
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("adminBox").classList.remove("hidden");
+    renderOrders();
+  } else {
     alert("Wrong password");
   }
+}
+
+function saveOrder(){
+  const vin = document.getElementById("vin").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const report = document.getElementById("report").value.trim();
+  const status = document.getElementById("status").value;
+
+  if(!vin || !email){
+    alert("VIN & Email required");
+    return;
+  }
+
+  const index = orders.findIndex(o => o.vin === vin);
+
+  if(index > -1){
+    orders[index] = { vin, email, report, status };
+  } else {
+    orders.push({ vin, email, report, status });
+    document.getElementById("bell").play(); // 🔔 new order
+  }
+
+  localStorage.setItem("orders", JSON.stringify(orders));
+  renderOrders();
+}
+
+function renderOrders(){
+  const box = document.getElementById("orders");
+  box.innerHTML = "";
+
+  if(orders.length === 0){
+    box.innerHTML = "<p class='small'>No orders found.</p>";
+    return;
+  }
+
+  orders.forEach(o => {
+    box.innerHTML += `
+      <div class="order">
+        <b>VIN:</b> ${o.vin}<br>
+        <b>Email:</b> ${o.email}<br>
+        <b>Status:</b> ${o.status}<br>
+        <b>Report:</b> ${o.report || "Not added"}<br>
+        <span class="small">Copy report link & send to customer</span>
+      </div>
+    `;
+  });
 }
 </script>
 
