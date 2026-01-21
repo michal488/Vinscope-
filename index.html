@@ -2,23 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vinscope | Vehicle History Check</title>
+<title>Vinscope | Vehicle History Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
   margin:0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
   background:#f4f4f4;
   color:#111;
 }
 .container{
   max-width:420px;
-  margin:30px auto;
+  margin:25px auto;
   background:#fff;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.12);
+}
+.logo{
+  text-align:center;
+  margin-bottom:10px;
+}
+.logo img{
+  max-width:160px;
 }
 h1,h2{
   text-align:center;
@@ -27,12 +34,13 @@ h1,h2{
 p{
   text-align:center;
   color:#555;
+  font-size:14px;
 }
 input,button{
   width:100%;
-  padding:15px;
-  margin-top:15px;
-  font-size:16px;
+  padding:14px;
+  margin-top:14px;
+  font-size:15px;
   border-radius:30px;
 }
 input{
@@ -47,8 +55,8 @@ button{
 button:hover{opacity:0.9}
 .hidden{display:none}
 .list{
-  text-align:left;
   font-size:14px;
+  line-height:1.7;
   margin-top:15px;
 }
 .price{
@@ -61,97 +69,103 @@ button:hover{opacity:0.9}
   font-size:12px;
   color:#666;
   text-align:center;
-  margin-top:15px;
+  margin-top:14px;
 }
 footer{
-  font-size:12px;
   text-align:center;
+  font-size:12px;
   color:#666;
-  margin-top:20px;
+  margin:20px 0;
 }
 </style>
-
-<!-- PAYPAL SDK -->
-<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
 </head>
 
 <body>
 
+<!-- 🔔 Bell Sound -->
+<audio id="bell">
+  <source src="ring.mp3" type="audio/mpeg">
+</audio>
+
 <!-- HOME -->
 <div class="container" id="home">
+  <div class="logo">
+    <img src="logo.png" alt="Vinscope Logo">
+  </div>
+
   <h1>Vinscope</h1>
   <p>Enter your 17-digit VIN to check vehicle history</p>
+
   <input id="vinInput" placeholder="Enter VIN">
-  <button onclick="checkVin()">Get Report</button>
-  <p class="note">Free VIN verification before checkout</p>
+  <button onclick="checkVIN()">Get Report</button>
+
+  <p class="note">Free VIN verification before ordering</p>
 </div>
 
 <!-- RECORDS FOUND -->
-<div class="container hidden" id="records">
+<div class="container hidden" id="found">
   <h2>Records Found</h2>
   <p>VIN: <b id="vinShow"></b></p>
 
   <div class="list">
     ✔ Title Information<br>
-    ✔ Accident & Damage Check<br>
-    ✔ Ownership Records<br>
-    ✔ Mileage History<br>
-    ✔ Theft & Salvage Status
+    ✔ Accident & Damage Records<br>
+    ✔ Ownership History<br>
+    ✔ Mileage Verification<br>
+    ✔ Theft / Salvage Status
   </div>
 
-  <div class="price">$50</div>
-  <button onclick="goCheckout()">Proceed to Checkout</button>
+  <div class="price">Order Price: $50</div>
+  <button onclick="orderDetails()">Order Report</button>
 </div>
 
-<!-- CHECKOUT -->
-<div class="container hidden" id="checkout">
-  <h2>Checkout</h2>
-  <p>VIN: <b id="vinCheckout"></b></p>
+<!-- ORDER DETAILS -->
+<div class="container hidden" id="order">
+  <h2>Order Details</h2>
+  <p>VIN: <b id="vinOrder"></b></p>
 
-  <input id="email" placeholder="Enter your email" required>
+  <input id="email" placeholder="Enter your email">
 
-  <div class="price">$50</div>
+  <div class="price">Order Price: $50</div>
 
   <div class="note">
-    Secure PayPal payment<br>
-    Report delivery within <b>3 hours</b><br>
+    Report will be delivered within <b>3 hours</b><br>
     Refund / chargeback available if delivery fails
   </div>
 
-  <div id="paypal-button-container" style="margin-top:20px;"></div>
+  <button onclick="placeOrder()">Place Order</button>
 </div>
 
-<!-- ORDER CONFIRM -->
+<!-- CONFIRMATION -->
 <div class="container hidden" id="confirm">
   <h2>Order Confirmed</h2>
-  <p>Your order is being processed.</p>
+  <p>Your order has been received.</p>
+
   <div class="note">
-    Your vehicle history report will be delivered within <b>3 hours</b>.
-  </div>
-</div>
-
-<!-- REPORT -->
-<div class="container hidden" id="report">
-  <h2>Vehicle History Report</h2>
-  <p>VIN: <b id="vinReport"></b></p>
-
-  <div class="list">
-    Title Records: Available<br>
-    Accident Records: Available<br>
-    Ownership History: Available<br>
-    Mileage Data: Available<br>
-    Theft Check: Clear
+    Vehicle history report will be delivered within <b>3 hours</b>.
   </div>
 </div>
 
 <footer>
-© Vinscope • Support: support@vinscope.com
+© Vinscope • All rights reserved
 </footer>
 
 <script>
 let currentVIN="";
 
-function checkVin(){
+/* Bell plays on first user interaction */
+window.addEventListener("click", function(){
+  document.getElementById("bell").play();
+},{ once:true });
+
+function show(id){
+  ["home","found","order","confirm"].forEach(x=>{
+    document.getElementById(x).classList.add("hidden");
+  });
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function checkVIN(){
   const vin=document.getElementById("vinInput").value.trim();
   if(vin.length!==17){
     alert("Please enter a valid 17-digit VIN");
@@ -159,37 +173,31 @@ function checkVin(){
   }
   currentVIN=vin;
   document.getElementById("vinShow").innerText=vin;
-  show("records");
+  show("found");
 }
 
-function goCheckout(){
-  document.getElementById("vinCheckout").innerText=currentVIN;
-  show("checkout");
-  loadPayPal();
+function orderDetails(){
+  document.getElementById("vinOrder").innerText=currentVIN;
+  show("order");
 }
 
-function loadPayPal(){
-  paypal.Buttons({
-    createOrder:function(data,actions){
-      return actions.order.create({
-        purchase_units:[{
-          amount:{value:"50.00"}
-        }]
-      });
-    },
-    onApprove:function(data,actions){
-      return actions.order.capture().then(function(){
-        show("confirm");
-      });
-    }
-  }).render("#paypal-button-container");
-}
+function placeOrder(){
+  const email=document.getElementById("email").value.trim();
+  if(!email){
+    alert("Email is required");
+    return;
+  }
 
-function show(id){
-  ["home","records","checkout","confirm","report"].forEach(s=>{
-    document.getElementById(s).classList.add("hidden");
+  const orders=JSON.parse(localStorage.getItem("orders")||"[]");
+  orders.push({
+    vin:currentVIN,
+    email:email,
+    status:"Processing",
+    report:""
   });
-  document.getElementById(id).classList.remove("hidden");
+  localStorage.setItem("orders",JSON.stringify(orders));
+
+  show("confirm");
 }
 </script>
 
