@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Vinscope</title>
+
+<style>
+body{
+  background:#0b0b0b;
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:white;
+}
+.box{
+  background:#151515;
+  padding:25px;
+  border-radius:12px;
+  width:300px;
+}
+input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+button{
+  width:100%;
+  padding:10px;
+  margin-top:15px;
+  background:black;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+#result{
+  margin-top:15px;
+  color:#22c55e;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Vinscope</h2>
+  <p>Enter VIN Number</p>
+
+  <input type="text" id="vin" placeholder="Enter VIN here" maxlength="17">
+  <button onclick="checkVin()">Check VIN</button>
+
+  <!-- RESULT DIV (IMPORTANT) -->
+  <div id="result"></div>
+</div>
+
+<script>
+function checkVin(){
+  var vin = document.getElementById("vin").value;
+
+  if(vin.length < 5){
+    document.getElementById("result").innerHTML = "❌ Please enter a valid VIN";
+    return;
+  }
+
+  document.getElementById("result").innerHTML = `
+    <h3>Vehicle Details</h3>
+    <p><b>VIN:</b> ${vin}</p>
+    <p><b>Make:</b> Toyota</p>
+    <p><b>Model:</b> Corolla</p>
+    <p><b>Year:</b> 2020</p>
+    <p><b>Engine:</b> 1.8L Petrol</p>
+    <p style="color:#22c55e"><b>Full Report Price:</b> $50</p>
+  `;
+}
+</script>
+
+</body>
+</html>
