@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vinscope Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f2f2f2;
+}
+.container{
+  max-width:500px;
+  margin:30px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+h1,h2{text-align:center}
+input,button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border-radius:8px;
+  font-size:15px;
+}
+input{border:1px solid #ccc}
+button{
+  background:#000;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
+button:hover{opacity:0.9}
+.hidden{display:none}
+.order{
+  border:1px solid #ddd;
+  padding:12px;
+  border-radius:8px;
+  margin-top:10px;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="login">
+  <h1>Vinscope Admin</h1>
+  <input id="pass" type="password" placeholder="Admin Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="container hidden" id="panel">
+  <h2>Orders Panel</h2>
+
+  <div class="order">
+    <b>VIN:</b> WBAVC93507K033911<br>
+    <b>Email:</b> customer@email.com<br>
+    <b>Status:</b> Processing
+  </div>
+
+  <div class="order">
+    <b>VIN:</b> 1HGCM82633A123456<br>
+    <b>Email:</b> buyer@email.com<br>
+    <b>Status:</b> Delivered
+  </div>
+</div>
+
+<script>
+function login(){
+  if(document.getElementById("pass").value==="admin123"){
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("panel").classList.remove("hidden");
+  }else{
+    alert("Wrong password");
+  }
+}
+</script>
+
+</body>
+</html>
