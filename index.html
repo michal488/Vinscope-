@@ -1,78 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Vinscope</title>
+<meta charset="UTF-8">
+<title>Vinscope | VIN Decoder</title>
 
 <style>
 body{
-  background:#0b0b0b;
-  font-family:Arial;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  color:white;
+  font-family: Georgia, "Times New Roman", serif;
+  background:#f4f4f4;
+  color:#222;
+  margin:0;
+  padding:0;
 }
-.box{
-  background:#151515;
-  padding:25px;
-  border-radius:12px;
-  width:300px;
+
+.container{
+  max-width:600px;
+  margin:80px auto;
+  background:#ffffff;
+  padding:30px;
+  border:1px solid #ddd;
 }
+
+h1{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+p{
+  text-align:center;
+  color:#555;
+}
+
 input{
   width:100%;
-  padding:10px;
-  margin-top:10px;
+  padding:12px;
+  margin-top:20px;
+  font-size:16px;
+  border:1px solid #aaa;
 }
+
 button{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin-top:15px;
-  background:black;
-  color:white;
+  font-size:16px;
+  background:#222;
+  color:#fff;
   border:none;
   cursor:pointer;
 }
-#result{
+
+button:hover{
+  background:#444;
+}
+
+.report{
+  margin-top:30px;
+  border-top:1px solid #ddd;
+  padding-top:20px;
+}
+
+ul{
+  list-style:none;
+  padding:0;
+}
+
+ul li{
+  padding:6px 0;
+  border-bottom:1px solid #eee;
+}
+
+.price{
+  text-align:center;
+  font-size:18px;
   margin-top:15px;
-  color:#22c55e;
+  font-weight:bold;
+}
+
+.footer{
+  text-align:center;
+  font-size:14px;
+  margin-top:30px;
+  color:#777;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
-  <h2>Vinscope</h2>
-  <p>Enter VIN Number</p>
+<div class="container">
+  <h1>Vinscope</h1>
+  <p>Professional VIN Decoder & Vehicle History</p>
 
-  <input type="text" id="vin" placeholder="Enter VIN here" maxlength="17">
-  <button onclick="checkVin()">Check VIN</button>
+  <input type="text" placeholder="Enter VIN Number">
 
-  <!-- RESULT DIV (IMPORTANT) -->
-  <div id="result"></div>
+  <button>Check VIN</button>
+
+  <div class="report">
+    <h3>Full Vehicle Report Includes</h3>
+    <ul>
+      <li>Accident History</li>
+      <li>Mileage Verification</li>
+      <li>Ownership Records</li>
+      <li>Theft & Damage Check</li>
+    </ul>
+
+    <div class="price">
+      Full Report Price: $50
+    </div>
+
+    <button>Buy Full Report</button>
+  </div>
+
+  <div class="footer">
+    © 2026 Vinscope.com
+  </div>
 </div>
-
-<script>
-function checkVin(){
-  var vin = document.getElementById("vin").value;
-
-  if(vin.length < 5){
-    document.getElementById("result").innerHTML = "❌ Please enter a valid VIN";
-    return;
-  }
-
-  document.getElementById("result").innerHTML = `
-    <h3>Vehicle Details</h3>
-    <p><b>VIN:</b> ${vin}</p>
-    <p><b>Make:</b> Toyota</p>
-    <p><b>Model:</b> Corolla</p>
-    <p><b>Year:</b> 2020</p>
-    <p><b>Engine:</b> 1.8L Petrol</p>
-    <p style="color:#22c55e"><b>Full Report Price:</b> $50</p>
-  `;
-}
-</script>
 
 </body>
 </html>
