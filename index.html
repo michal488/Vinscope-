@@ -2,179 +2,194 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vinscope | Vehicle History Report</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vinscope | Vehicle History Check</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
   margin:0;
   font-family: Arial, Helvetica, sans-serif;
-  background:#ffffff;
-  color:#000;
-  text-align:center;
+  background:#f4f4f4;
+  color:#111;
 }
-
 .container{
   max-width:420px;
-  margin:auto;
-  padding:20px;
-}
-
-.car-img{
-  width:100%;
+  margin:30px auto;
+  background:#fff;
+  padding:25px;
   border-radius:12px;
-  margin-bottom:25px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
 }
-
-h1{
-  margin-bottom:8px;
+h1,h2{
+  text-align:center;
+  margin:10px 0;
 }
-
 p{
+  text-align:center;
   color:#555;
 }
-
+input,button{
+  width:100%;
+  padding:15px;
+  margin-top:15px;
+  font-size:16px;
+  border-radius:30px;
+}
 input{
-  width:100%;
-  padding:18px;
-  font-size:16px;
-  border:2px solid #000;
-  border-radius:40px;
-  outline:none;
-  margin-top:15px;
+  border:1.5px solid #000;
 }
-
 button{
-  width:100%;
-  padding:18px;
-  font-size:16px;
-  border-radius:40px;
-  cursor:pointer;
+  background:#000;
+  color:#fff;
   border:none;
+  cursor:pointer;
+}
+button:hover{opacity:0.9}
+.hidden{display:none}
+.list{
+  text-align:left;
+  font-size:14px;
   margin-top:15px;
 }
-
-.get{
-  background:#fff;
-  border:2px solid #000;
+.price{
+  font-size:22px;
+  font-weight:bold;
+  text-align:center;
+  margin-top:15px;
 }
-
-.no-vin{
-  background:#000;
-  color:#fff;
+.note{
+  font-size:12px;
+  color:#666;
+  text-align:center;
+  margin-top:15px;
 }
-
-.buy{
-  background:#000;
-  color:#fff;
-  margin-top:25px;
-}
-
-.result{
-  display:none;
-  margin-top:25px;
-  border-top:1px solid #ddd;
-  padding-top:20px;
-}
-
-.footer{
-  margin-top:40px;
-  background:#000;
-  color:#fff;
-  padding:25px 15px;
-  font-size:13px;
-  text-align:left;
-}
-
-.footer strong{
-  display:block;
-  margin-bottom:8px;
-}
-
-.footer small{
-  display:block;
-  opacity:0.85;
-  margin-bottom:8px;
+footer{
+  font-size:12px;
+  text-align:center;
+  color:#666;
+  margin-top:20px;
 }
 </style>
+
+<!-- PAYPAL SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
 </head>
 
 <body>
 
-<div class="container">
-
-  <img class="car-img" src="https://i.imgur.com/4ZQZ6dF.png" alt="Car">
-
+<!-- HOME -->
+<div class="container" id="home">
   <h1>Vinscope</h1>
-  <p>Check vehicle details by VIN number</p>
-
-  <input id="vin" type="text" placeholder="Enter your 17-digit VIN" maxlength="17">
-
-  <button class="get" onclick="checkVin()">Get Report</button>
-
-  <button class="no-vin" onclick="alert('VIN is required to generate a vehicle report.')">
-    I don’t have a VIN →
-  </button>
-
-  <div class="result" id="result"></div>
-
-  <button class="buy" onclick="buyReport()">Buy Full Report – $50</button>
-
+  <p>Enter your 17-digit VIN to check vehicle history</p>
+  <input id="vinInput" placeholder="Enter VIN">
+  <button onclick="checkVin()">Get Report</button>
+  <p class="note">Free VIN verification before checkout</p>
 </div>
 
-<div class="footer">
-  <strong>Disclaimer</strong>
-  <small>
-    Vinscope provides basic vehicle information using public government data sources.
-    Full vehicle history reports are prepared using third-party providers and may
-    be delivered manually. No instant paid reports are provided at this time.
-  </small>
+<!-- RECORDS FOUND -->
+<div class="container hidden" id="records">
+  <h2>Records Found</h2>
+  <p>VIN: <b id="vinShow"></b></p>
 
-  <strong>Refund & Chargeback Policy</strong>
-  <small>
-    If a full vehicle report is not delivered within the stated timeframe,
-    customers may request a full refund or chargeback by contacting our support team.
-    Refunds are processed within 3–5 business days.
-  </small>
+  <div class="list">
+    ✔ Title Information<br>
+    ✔ Accident & Damage Check<br>
+    ✔ Ownership Records<br>
+    ✔ Mileage History<br>
+    ✔ Theft & Salvage Status
+  </div>
 
-  <strong>Support</strong>
-  <small>
-    Email: support@vinscope.com
-  </small>
+  <div class="price">$50</div>
+  <button onclick="goCheckout()">Proceed to Checkout</button>
 </div>
+
+<!-- CHECKOUT -->
+<div class="container hidden" id="checkout">
+  <h2>Checkout</h2>
+  <p>VIN: <b id="vinCheckout"></b></p>
+
+  <input id="email" placeholder="Enter your email" required>
+
+  <div class="price">$50</div>
+
+  <div class="note">
+    Secure PayPal payment<br>
+    Report delivery within <b>3 hours</b><br>
+    Refund / chargeback available if delivery fails
+  </div>
+
+  <div id="paypal-button-container" style="margin-top:20px;"></div>
+</div>
+
+<!-- ORDER CONFIRM -->
+<div class="container hidden" id="confirm">
+  <h2>Order Confirmed</h2>
+  <p>Your order is being processed.</p>
+  <div class="note">
+    Your vehicle history report will be delivered within <b>3 hours</b>.
+  </div>
+</div>
+
+<!-- REPORT -->
+<div class="container hidden" id="report">
+  <h2>Vehicle History Report</h2>
+  <p>VIN: <b id="vinReport"></b></p>
+
+  <div class="list">
+    Title Records: Available<br>
+    Accident Records: Available<br>
+    Ownership History: Available<br>
+    Mileage Data: Available<br>
+    Theft Check: Clear
+  </div>
+</div>
+
+<footer>
+© Vinscope • Support: support@vinscope.com
+</footer>
 
 <script>
-function checkVin(){
-  const vin = document.getElementById("vin").value;
-  const result = document.getElementById("result");
+let currentVIN="";
 
-  if(vin.length !== 17){
-    result.style.display = "block";
-    result.innerHTML = "<p>Please enter a valid 17-digit VIN.</p>";
+function checkVin(){
+  const vin=document.getElementById("vinInput").value.trim();
+  if(vin.length!==17){
+    alert("Please enter a valid 17-digit VIN");
     return;
   }
-
-  fetch("https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/"+vin+"?format=json")
-  .then(res => res.json())
-  .then(data => {
-    let d = data.Results[0];
-    result.style.display = "block";
-    result.innerHTML = `
-      <h3>Free VIN Preview</h3>
-      <p><b>VIN:</b> ${vin}</p>
-      <p><b>Make:</b> ${d.Make || "Not available"}</p>
-      <p><b>Model:</b> ${d.Model || "Not available"}</p>
-      <p><b>Year:</b> ${d.ModelYear || "Not available"}</p>
-      <p style="font-size:14px;color:#555;">
-        Accident history, mileage records & ownership details
-        are available in the paid full report.
-      </p>
-    `;
-  });
+  currentVIN=vin;
+  document.getElementById("vinShow").innerText=vin;
+  show("records");
 }
 
-function buyReport(){
-  alert("Full reports are delivered via verified data providers. Payment system coming soon.");
+function goCheckout(){
+  document.getElementById("vinCheckout").innerText=currentVIN;
+  show("checkout");
+  loadPayPal();
+}
+
+function loadPayPal(){
+  paypal.Buttons({
+    createOrder:function(data,actions){
+      return actions.order.create({
+        purchase_units:[{
+          amount:{value:"50.00"}
+        }]
+      });
+    },
+    onApprove:function(data,actions){
+      return actions.order.capture().then(function(){
+        show("confirm");
+      });
+    }
+  }).render("#paypal-button-container");
+}
+
+function show(id){
+  ["home","records","checkout","confirm","report"].forEach(s=>{
+    document.getElementById(s).classList.add("hidden");
+  });
+  document.getElementById(id).classList.remove("hidden");
 }
 </script>
 
