@@ -5,12 +5,14 @@
 <title>Vinscope | Vehicle History Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- PAYPAL SCRIPT (TEST MODE) -->
+<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+
 <style>
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
   background:#f4f4f4;
-  color:#111;
 }
 .container{
   max-width:420px;
@@ -20,22 +22,10 @@ body{
   border-radius:14px;
   box-shadow:0 10px 25px rgba(0,0,0,0.12);
 }
-.logo{
-  text-align:center;
-  margin-bottom:10px;
-}
-.logo img{
-  max-width:160px;
-}
-h1,h2{
-  text-align:center;
-  margin:10px 0;
-}
-p{
-  text-align:center;
-  color:#555;
-  font-size:14px;
-}
+.logo{text-align:center;margin-bottom:10px}
+.logo img{max-width:160px}
+h1,h2{text-align:center;margin:10px 0}
+p{text-align:center;color:#555;font-size:14px}
 input,button{
   width:100%;
   padding:14px;
@@ -43,22 +33,16 @@ input,button{
   font-size:15px;
   border-radius:30px;
 }
-input{
-  border:1.5px solid #000;
-}
+input{border:1.5px solid #000}
 button{
   background:#000;
   color:#fff;
   border:none;
   cursor:pointer;
 }
-button:hover{opacity:0.9}
+button:hover{opacity:.9}
 .hidden{display:none}
-.list{
-  font-size:14px;
-  line-height:1.7;
-  margin-top:15px;
-}
+.list{font-size:14px;line-height:1.7;margin-top:15px}
 .price{
   font-size:22px;
   font-weight:bold;
@@ -82,7 +66,7 @@ footer{
 
 <body>
 
-<!-- 🔔 Bell Sound -->
+<!-- 🔔 BELL -->
 <audio id="bell">
   <source src="ring.mp3" type="audio/mpeg">
 </audio>
@@ -92,7 +76,6 @@ footer{
   <div class="logo">
     <img src="logo.png" alt="Vinscope Logo">
   </div>
-
   <h1>Vinscope</h1>
   <p>Enter your 17-digit VIN to check vehicle history</p>
 
@@ -116,7 +99,7 @@ footer{
   </div>
 
   <div class="price">Order Price: $50</div>
-  <button onclick="orderDetails()">Order Report</button>
+  <button onclick="goOrder()">Order Report</button>
 </div>
 
 <!-- ORDER DETAILS -->
@@ -128,19 +111,19 @@ footer{
 
   <div class="price">Order Price: $50</div>
 
+  <!-- PAYPAL BUTTON -->
+  <div id="paypal-button-container" style="margin-top:15px;"></div>
+
   <div class="note">
     Report will be delivered within <b>3 hours</b><br>
     Refund / chargeback available if delivery fails
   </div>
-
-  <button onclick="placeOrder()">Place Order</button>
 </div>
 
-<!-- CONFIRMATION -->
+<!-- CONFIRM -->
 <div class="container hidden" id="confirm">
   <h2>Order Confirmed</h2>
-  <p>Your order has been received.</p>
-
+  <p>Your payment was successful.</p>
   <div class="note">
     Vehicle history report will be delivered within <b>3 hours</b>.
   </div>
@@ -153,10 +136,10 @@ footer{
 <script>
 let currentVIN="";
 
-/* Bell plays on first user interaction */
-window.addEventListener("click", function(){
+/* 🔔 Bell on first click */
+window.addEventListener("click",function(){
   document.getElementById("bell").play();
-},{ once:true });
+},{once:true});
 
 function show(id){
   ["home","found","order","confirm"].forEach(x=>{
@@ -176,29 +159,44 @@ function checkVIN(){
   show("found");
 }
 
-function orderDetails(){
+function goOrder(){
   document.getElementById("vinOrder").innerText=currentVIN;
   show("order");
 }
 
-function placeOrder(){
+/* SAVE ORDER AFTER PAYMENT */
+function saveOrder(){
   const email=document.getElementById("email").value.trim();
   if(!email){
-    alert("Email is required");
+    alert("Email required");
     return;
   }
-
   const orders=JSON.parse(localStorage.getItem("orders")||"[]");
   orders.push({
     vin:currentVIN,
     email:email,
-    status:"Processing",
+    status:"Paid / Processing",
     report:""
   });
   localStorage.setItem("orders",JSON.stringify(orders));
-
   show("confirm");
 }
+
+/* PAYPAL */
+paypal.Buttons({
+  createOrder:function(data,actions){
+    return actions.order.create({
+      purchase_units:[{
+        amount:{value:"50.00"}
+      }]
+    });
+  },
+  onApprove:function(data,actions){
+    return actions.order.capture().then(function(){
+      saveOrder();
+    });
+  }
+}).render("#paypal-button-container");
 </script>
 
 </body>
