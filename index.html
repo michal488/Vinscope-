@@ -5,197 +5,99 @@
 <title>Vinscope | Vehicle History Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- PAYPAL SCRIPT (TEST MODE) -->
-<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+<!-- PAYPAL LIVE -->
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_LIVE_PAYPAL_CLIENT_ID&currency=USD"></script>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f4f4f4;
-}
-.container{
-  max-width:420px;
-  margin:25px auto;
-  background:#fff;
-  padding:22px;
-  border-radius:14px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.12);
-}
-.logo{text-align:center;margin-bottom:10px}
+body{margin:0;font-family:Arial;background:#f4f4f4}
+.container{max-width:420px;margin:25px auto;background:#fff;padding:22px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.12)}
+.logo{text-align:center}
 .logo img{max-width:160px}
-h1,h2{text-align:center;margin:10px 0}
+h1,h2{text-align:center}
 p{text-align:center;color:#555;font-size:14px}
-input,button{
-  width:100%;
-  padding:14px;
-  margin-top:14px;
-  font-size:15px;
-  border-radius:30px;
-}
+input,button{width:100%;padding:14px;margin-top:14px;border-radius:30px;font-size:15px}
 input{border:1.5px solid #000}
-button{
-  background:#000;
-  color:#fff;
-  border:none;
-  cursor:pointer;
-}
-button:hover{opacity:.9}
+button{background:#000;color:#fff;border:none;cursor:pointer}
 .hidden{display:none}
-.list{font-size:14px;line-height:1.7;margin-top:15px}
-.price{
-  font-size:22px;
-  font-weight:bold;
-  text-align:center;
-  margin-top:15px;
-}
-.note{
-  font-size:12px;
-  color:#666;
-  text-align:center;
-  margin-top:14px;
-}
-footer{
-  text-align:center;
-  font-size:12px;
-  color:#666;
-  margin:20px 0;
-}
+.list{font-size:14px;line-height:1.7;margin-top:12px}
+.price{font-size:22px;font-weight:bold;text-align:center;margin-top:15px}
+.note{font-size:12px;color:#666;text-align:center;margin-top:12px}
+footer{text-align:center;font-size:12px;color:#666;margin:20px}
 </style>
 </head>
 
 <body>
 
-<!-- 🔔 BELL -->
-<audio id="bell">
-  <source src="ring.mp3" type="audio/mpeg">
-</audio>
+<audio id="bell"><source src="ring.mp3" type="audio/mpeg"></audio>
 
-<!-- HOME -->
 <div class="container" id="home">
-  <div class="logo">
-    <img src="logo.png" alt="Vinscope Logo">
-  </div>
+  <div class="logo"><img src="logo.png"></div>
   <h1>Vinscope</h1>
-  <p>Enter your 17-digit VIN to check vehicle history</p>
-
+  <p>Enter your 17-digit VIN</p>
   <input id="vinInput" placeholder="Enter VIN">
   <button onclick="checkVIN()">Get Report</button>
-
-  <p class="note">Free VIN verification before ordering</p>
 </div>
 
-<!-- RECORDS FOUND -->
 <div class="container hidden" id="found">
   <h2>Records Found</h2>
   <p>VIN: <b id="vinShow"></b></p>
-
   <div class="list">
-    ✔ Title Information<br>
-    ✔ Accident & Damage Records<br>
-    ✔ Ownership History<br>
-    ✔ Mileage Verification<br>
-    ✔ Theft / Salvage Status
+    ✔ Title Info<br>✔ Accident Records<br>✔ Ownership History<br>✔ Mileage Check<br>✔ Theft Status
   </div>
-
   <div class="price">Order Price: $50</div>
   <button onclick="goOrder()">Order Report</button>
 </div>
 
-<!-- ORDER DETAILS -->
 <div class="container hidden" id="order">
   <h2>Order Details</h2>
   <p>VIN: <b id="vinOrder"></b></p>
-
-  <input id="email" placeholder="Enter your email">
-
+  <input id="email" placeholder="Enter email">
   <div class="price">Order Price: $50</div>
-
-  <!-- PAYPAL BUTTON -->
-  <div id="paypal-button-container" style="margin-top:15px;"></div>
-
-  <div class="note">
-    Report will be delivered within <b>3 hours</b><br>
-    Refund / chargeback available if delivery fails
-  </div>
+  <div id="paypal-button-container"></div>
+  <div class="note">Report delivered within <b>3 hours</b></div>
 </div>
 
-<!-- CONFIRM -->
 <div class="container hidden" id="confirm">
-  <h2>Order Confirmed</h2>
-  <p>Your payment was successful.</p>
-  <div class="note">
-    Vehicle history report will be delivered within <b>3 hours</b>.
-  </div>
+  <h2>Payment Successful</h2>
+  <p>Your order is processing.</p>
 </div>
 
-<footer>
-© Vinscope • All rights reserved
-</footer>
+<footer>© Vinscope</footer>
 
 <script>
 let currentVIN="";
-
-/* 🔔 Bell on first click */
-window.addEventListener("click",function(){
-  document.getElementById("bell").play();
-},{once:true});
+window.addEventListener("click",()=>document.getElementById("bell").play(),{once:true});
 
 function show(id){
-  ["home","found","order","confirm"].forEach(x=>{
-    document.getElementById(x).classList.add("hidden");
-  });
-  document.getElementById(id).classList.remove("hidden");
+ ["home","found","order","confirm"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+ document.getElementById(id).classList.remove("hidden");
 }
 
 function checkVIN(){
-  const vin=document.getElementById("vinInput").value.trim();
-  if(vin.length!==17){
-    alert("Please enter a valid 17-digit VIN");
-    return;
-  }
-  currentVIN=vin;
-  document.getElementById("vinShow").innerText=vin;
-  show("found");
+ const vin=vinInput.value.trim();
+ if(vin.length!==17){alert("Invalid VIN");return;}
+ currentVIN=vin;
+ vinShow.innerText=vin;
+ show("found");
 }
 
 function goOrder(){
-  document.getElementById("vinOrder").innerText=currentVIN;
-  show("order");
+ vinOrder.innerText=currentVIN;
+ show("order");
 }
 
-/* SAVE ORDER AFTER PAYMENT */
 function saveOrder(){
-  const email=document.getElementById("email").value.trim();
-  if(!email){
-    alert("Email required");
-    return;
-  }
-  const orders=JSON.parse(localStorage.getItem("orders")||"[]");
-  orders.push({
-    vin:currentVIN,
-    email:email,
-    status:"Paid / Processing",
-    report:""
-  });
-  localStorage.setItem("orders",JSON.stringify(orders));
-  show("confirm");
+ const email=document.getElementById("email").value.trim();
+ if(!email){alert("Email required");return;}
+ const orders=JSON.parse(localStorage.getItem("orders")||"[]");
+ orders.push({vin:currentVIN,email,status:"Paid",report:""});
+ localStorage.setItem("orders",JSON.stringify(orders));
+ show("confirm");
 }
 
-/* PAYPAL */
 paypal.Buttons({
-  createOrder:function(data,actions){
-    return actions.order.create({
-      purchase_units:[{
-        amount:{value:"50.00"}
-      }]
-    });
-  },
-  onApprove:function(data,actions){
-    return actions.order.capture().then(function(){
-      saveOrder();
-    });
-  }
+ createOrder:(d,a)=>a.order.create({purchase_units:[{amount:{value:"50.00"}}]}),
+ onApprove:(d,a)=>a.order.capture().then(()=>saveOrder())
 }).render("#paypal-button-container");
 </script>
 
